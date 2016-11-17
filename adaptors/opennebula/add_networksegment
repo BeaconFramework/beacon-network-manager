@@ -1,0 +1,55 @@
+#!/usr/bin/env ruby
+
+#------------------------------------------------------------------------------#
+# Copyright 2010-2015, OpenNebula Systems                                      #
+#                                                                              #
+# Licensed under the Apache License, Version 2.0 (the "License"); you may      #
+# not use this file except in compliance with the License. You may obtain      #
+# a copy of the License at                                                     #
+#                                                                              #
+# http://www.apache.org/licenses/LICENSE-2.0                                   #
+#                                                                              #
+# Unless required by applicable law or agreed to in writing, software          #
+# distributed under the License is distributed on an "AS IS" BASIS,            #
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.     #
+# See the License for the specific language governing permissions and          #
+# limitations under the License.                                               #
+#------------------------------------------------------------------------------#
+
+$: << ".."
+
+require 'opennebula'
+require 'base64'
+require 'json'
+
+# Read from stdin
+
+json_in = JSON.parse(Base64.decode64(STDIN.read))
+
+network_id = json_in["network_segment_id"]
+username = json_in["token"].split(":")[0]
+password = json_in["token"].split(":")[1]
+endpoint = json_in["cmp_endpoint"]
+
+client    = OpenNebula::Client.new("#{username}:#{password}",
+                                   endpoint)
+net       = OpenNebula::VirtualNetwork.new_with_id(network_id,client)
+
+rc        = net.info
+
+if !rc
+    return_code  = 0
+    errormsg     = ""
+    network_info = net.to_hash["VNET"]
+else
+    return_code  = 1
+    errormsg     = "Network not valid or not found. Reason: #{rc.message}"
+    network_info = ""
+end
+
+output = {:returncode    => return_code,
+          :errormsg      => errormsg,
+          :token         => "",
+          :network_info  => network_info}
+
+puts Base64.encode64(JSON.pretty_generate(output))

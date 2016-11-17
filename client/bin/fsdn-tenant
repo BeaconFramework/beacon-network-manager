@@ -1,0 +1,253 @@
+#!/usr/bin/env ruby
+
+#------------------------------------------------------------------------------#
+# Copyright 2010-2015, OpenNebula Systems                                      #
+#                                                                              #
+# Licensed under the Apache License, Version 2.0 (the "License"); you may      #
+# not use this file except in compliance with the License. You may obtain      #
+# a copy of the License at                                                     #
+#                                                                              #
+# http://www.apache.org/licenses/LICENSE-2.0                                   #
+#                                                                              #
+# Unless required by applicable law or agreed to in writing, software          #
+# distributed under the License is distributed on an "AS IS" BASIS,            #
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.     #
+# See the License for the specific language governing permissions and          #
+# limitations under the License.                                               #
+#------------------------------------------------------------------------------#
+
+FSDN_CLIENT_LOCATION = File.dirname __FILE__
+
+
+RUBY_LIB_LOCATION = File.expand_path("../lib", FSDN_CLIENT_LOCATION)
+
+$: << RUBY_LIB_LOCATION
+$: << File.expand_path("../../lib", FSDN_CLIENT_LOCATION)
+
+require 'federatedsdn_client'
+
+require 'command_parser'
+require 'cli_helper'
+
+require 'rubygems'
+require 'json'
+
+USER_AGENT = "CLI"
+
+#
+# Options
+#
+
+DEFAULT_OPTIONS = [
+    ENDPOINT = {
+        :name => "server",
+        :short => "-s url",
+        :large => "--server url",
+        :format => String,
+        :description => "FederatedSDN endpoint"
+    },
+    USERNAME={
+        :name => "username",
+        :short => "-u name",
+        :large => "--username name",
+        :format => String,
+        :description => "User name"
+    },
+    PASSWORD={
+        :name => "password",
+        :short => "-p pass",
+        :large => "--password pass",
+        :format => String,
+        :description => "User password"
+    }
+]
+
+JSON_FORMAT={
+    :name => "json",
+    :short => "-j",
+    :large => "--json",
+    :description => "Show in JSON format"
+}
+
+#
+# Table
+#
+TABLE = CLIHelper::ShowTable.new(nil, self) do
+    column :ID, "User", :size=>4 do |d|
+        d["id"]
+    end
+
+    column :NAME, "Name", :size=>30 do |d|
+        d["name"]
+    end
+
+    default :ID, :NAME
+end
+
+#
+# Commands
+#
+
+cmd=CommandParser::CmdParser.new(ARGV) do
+    usage "`fsdn-tenant` <command> [<args>] [<options>]"
+    version FederatedSDN::VERSION_TEXT
+
+    set :option, DEFAULT_OPTIONS
+    set :option, CommandParser::VERSION
+
+    #
+    # List
+    #
+
+    list_desc = <<-EOT.unindent
+        List available tenants
+    EOT
+
+    command :list, list_desc, :options => JSON_FORMAT do
+        client = FederatedSDN::Client.new(
+                    options[:username],
+                    options[:password],
+                    options[:server],
+                    USER_AGENT)
+
+        response = client.get_tenants
+
+        if FederatedSDN::is_error?(response)
+            if options[:json]
+                [response.code.to_i, response.to_s]
+            else
+                puts "Server returned a"\
+                     " #{response.code} error code. Please rerun with --json"\
+                     " to see the full error message"
+                -1
+            end
+        else
+            if options[:json]
+                [0,response.body]
+            else
+                array_list = JSON.parse(response.body)
+                TABLE.show(array_list)
+                0
+            end
+        end
+    end
+
+    #
+    # Create
+    #
+
+    create_desc = <<-EOT.unindent
+        Create a new tenant from a json description on a file
+    EOT
+
+    command :create, create_desc, :file, :options => JSON_FORMAT do
+        client = FederatedSDN::Client.new(
+                    options[:username],
+                    options[:password],
+                    options[:server],
+                    USER_AGENT)
+
+        response = client.create_tenant(File.read(args[0]))
+
+        if FederatedSDN::is_error?(response)
+            if options[:json]
+                [response.code.to_i, response.to_s]
+            else
+                puts "Server returned a "\
+                     "#{response.code} error code."
+                [response.code.to_i, response.to_s]
+            end
+        else
+            [0, response.body]
+        end
+    end
+
+    #
+    # Show
+    #
+    show_desc = <<-EOT.unindent
+        Show detailed information of a given tenant
+    EOT
+
+    command :show, show_desc, :id, :options => JSON_FORMAT do
+        client = FederatedSDN::Client.new(
+                    options[:username],
+                    options[:password],
+                    options[:server],
+                    USER_AGENT)
+
+        response = client.get_tenant(args[0])
+
+        if FederatedSDN::is_error?(response)
+            if options[:json]
+                [response.code.to_i, response.to_s]
+            else
+                puts "Server returned a "\
+                     "#{response.code} error code. Please rerun with --json"\
+                     " to see the full error message"
+            end
+        else
+            [0,response.body]
+        end
+    end
+
+    #
+    # Delete
+    #
+
+    delete_desc = <<-EOT.unindent
+        Delete a given tenant
+    EOT
+
+    command :delete, delete_desc, :id, :options => JSON_FORMAT do
+        client = FederatedSDN::Client.new(
+                    options[:username],
+                    options[:password],
+                    options[:server],
+                    USER_AGENT)
+
+        response = client.delete_tenant(args[0])
+
+        if FederatedSDN::is_error?(response)
+            if options[:json]
+                [response.code.to_i, response.to_s]
+            else
+                puts "Server returned a "\
+                     "#{response.code} error code. Please rerun with --json"\
+                     " to see the full error message"
+            end
+        else
+            [0,response.body]
+        end
+    end
+
+    #
+    # Update
+    #
+
+    update_desc = <<-EOT.unindent
+        Update a tenant
+    EOT
+
+    command :update, update_desc, :id, :file, :options => JSON_FORMAT do
+        client = FederatedSDN::Client.new(
+                    options[:username],
+                    options[:password],
+                    options[:server],
+                    USER_AGENT)
+
+        response = client.update_tenant(args[0],File.read(args[1]))
+
+        if FederatedSDN::is_error?(response)
+            if options[:json]
+                [response.code.to_i, response.to_s]
+            else
+                puts "Server returned a "\
+                     "#{response.code} error code. Please rerun with --json"\
+                     " to see the full error message"
+            end
+        else
+            [0, response.body]
+        end
+    end
+end

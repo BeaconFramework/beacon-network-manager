@@ -1,0 +1,11 @@
+{"name" : "bob",
+ "password": "secret",
+ "type": "user",
+ "valid_sites": [
+ 	{
+ 	"site_id" : "1",
+ 	"user_id_in_site": "0",
+ 	"credentials": "oneadmin:opennebula"
+ 	}
+ ]
+}

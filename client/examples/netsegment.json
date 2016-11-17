@@ -1,0 +1,8 @@
+{"name" : "MyFirstNetSegment", 
+ "fa_endpoint" : "http://10.0.0.1:4054", 
+ "network_address" : "10.0.0.1", 
+ "network_mask" : "255.255.255.0",
+ "size": "255",
+ "vlan_id": "908",
+ "cmp_net_id": "1" 
+ }

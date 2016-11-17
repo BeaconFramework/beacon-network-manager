@@ -1,0 +1,96 @@
+#!/usr/bin/env ruby
+
+#------------------------------------------------------------------------------#
+# Copyright 2010-2015, OpenNebula Systems                                      #
+#                                                                              #
+# Licensed under the Apache License, Version 2.0 (the "License"); you may      #
+# not use this file except in compliance with the License. You may obtain      #
+# a copy of the License at                                                     #
+#                                                                              #
+# http://www.apache.org/licenses/LICENSE-2.0                                   #
+#                                                                              #
+# Unless required by applicable law or agreed to in writing, software          #
+# distributed under the License is distributed on an "AS IS" BASIS,            #
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.     #
+# See the License for the specific language governing permissions and          #
+# limitations under the License.                                               #
+#------------------------------------------------------------------------------#
+
+OPENNEBULA_ADAPTERS_LOCATION = File.dirname __FILE__
+RUBY_LIB_LOCATION = File.expand_path("../../lib", OPENNEBULA_ADAPTERS_LOCATION)
+
+$: << RUBY_LIB_LOCATION
+$: << File.dirname(RUBY_LIB_LOCATION)
+$: << ".."
+
+require 'command_manager'
+require 'opennebula'
+require 'base64'
+require 'json'
+
+
+# Helper functions
+def link_local(fa_src, fa_dst)
+    cmd = "ssh root@#{fa_src} \"/root/scripts/create_bridged_gretap_local #{fa_dst}\""
+    rc = LocalCommand.run(cmd)
+    rc.code == 0
+end
+
+def link_ec2(fa_src, fa_dst)
+    cmd = "ssh -i /home/oneadmin/aws/beacon.pem ubuntu@#{fa_src} \"sudo /root/scripts/create_bridged_gretap_amazon #{fa_dst}\""
+    rc = LocalCommand.run(cmd)
+    rc.code == 0
+end
+
+# Read from stdin
+
+json_in = JSON.parse(Base64.decode64(STDIN.read))
+
+type          = json_in["type"]
+tokens        = json_in["token"]
+fa_endpoints  = json_in["fa_endpoints"]
+network_table = json_in["network_table"]
+
+# Assuming full mesh
+
+success = false
+
+network_table.each_slice(2) do |nets|
+    success = false
+
+    fa_endpoint_0 = fa_endpoints[network_table.index(nets[0])]
+    fa_endpoint_1 = fa_endpoints[network_table.index(nets[1])]
+
+    # Start with first element of the pair net[0] link-> net[1]
+    is_remote = nets[0].match("EC2")
+    if !is_remote.nil? 
+        success = link_ec2(fa_endpoint_0, fa_endpoint_1) 
+    else
+        success = link_local(fa_endpoint_0, fa_endpoint_1)
+    end
+
+    break if !success
+
+    # Link second element of the pair net[1] link-> net[0]
+    is_remote = nets[1].match("EC2")
+    if !is_remote.nil? 
+        success = link_ec2(fa_endpoint_1, fa_endpoint_0) 
+    else
+        success = link_local(fa_endpoint_1, fa_endpoint_0)
+    end
+
+    break if !success
+end
+
+if success
+    return_code = 0
+    errormsg    = ""
+else
+    return_code = 1
+    errormsg    = "Couldn't perform a complete link on the federated network."
+end
+
+output = {:returncode  => return_code,
+          :errormsg    => errormsg}
+
+puts Base64.encode64(JSON.pretty_generate(output)).gsub("\n","")

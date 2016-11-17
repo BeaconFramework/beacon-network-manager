@@ -1,0 +1,40 @@
+GEM
+  remote: http://rubygems.org/
+  specs:
+    builder (3.2.2)
+    json (1.8.3)
+    mini_portile2 (2.0.0)
+    nokogiri (1.6.7)
+      mini_portile2 (~> 2.0.0.rc2)
+    opennebula (4.14.2)
+      json
+      nokogiri
+      rbvmomi
+    rack (1.6.4)
+    rack-protection (1.5.3)
+      rack
+    rbvmomi (1.8.2)
+      builder
+      nokogiri (>= 1.4.1)
+      trollop
+    sequel (4.29.0)
+    session (3.2.0)
+    sinatra (1.4.6)
+      rack (~> 1.4)
+      rack-protection (~> 1.4)
+      tilt (>= 1.3, < 3)
+    tilt (2.0.1)
+    trollop (2.1.2)
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  json
+  opennebula
+  sequel
+  session
+  sinatra
+
+BUNDLED WITH
+   1.11.0
