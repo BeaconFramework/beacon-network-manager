@@ -1,0 +1,54 @@
+#!/bin/python
+#
+
+#------------------------------------------------------------------------------#
+# Copyright 2015-2016, Università di Messina                                   #
+#                                                                              #
+# Licensed under the Apache License, Version 2.0 (the "License"); you may      #
+# not use this file except in compliance with the License. You may obtain      #
+# a copy of the License at                                                     #
+#                                                                              #
+# http://www.apache.org/licenses/LICENSE-2.0                                   #
+#                                                                              #
+# Unless required by applicable law or agreed to in writing, software          #
+# distributed under the License is distributed on an "AS IS" BASIS,            #
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.     #
+# See the License for the specific language governing permissions and          #
+# limitations under the License.                                               #
+#------------------------------------------------------------------------------#
+
+import sys
+import requests
+import base64
+import json
+from xml.dom import minidom
+
+file=open("/home/centos/link.out", "a")
+doc = minidom.parse("/home/centos/beacon/federated-sdn/src/adaptors/openstack/AdapterConfig.xml")
+osffm=doc.getElementsByTagName("OSFFM")[0]
+endpoint=osffm.getElementsByTagName("endpoint")[0].firstChild.data
+json=''
+while True:
+    line = sys.stdin.readline()
+    if not line:
+        break # EOF
+    json=json+line
+    file.write(line)
+json_dec = base64.decodestring(json)
+#json_dec manipulation
+url=endpoint+'/fednet/eastBr/FA_Management'
+
+try:
+    r = requests.put(url,data=json_dec)
+
+    file.write("ANSWER"+r.text+"\n")
+except Exception:
+     file.write("exception")
+file.write("jsoninp"+json_dec+"\n")
+
+
+
+file.close()
+sys.stdout.write(base64.encodestring(r.text))
+#comment next line and uncomment previous one
+#sys.stdout.write(base64.encodestring("{\"returncode\":0,\"errormsg\":\"\"}"))
