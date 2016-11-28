@@ -1,0 +1,42 @@
+#!/bin/python
+##############################################################################
+# The structure of this adapter based on what it received from fedsdn and what
+# OSFFM needs:
+#    -username structured in following way: user@tenant@cloud
+#    -password
+#    -region (not used for the moment but reserved for future use)
+# The JSON returned from OSFFM could be forwarded directly to FEDSDN
+#############################################################################
+import sys
+import requests
+import base64
+import json
+from xml.dom import minidom
+
+file=open("/home/centos/validate.out", "a")
+doc = minidom.parse("/home/centos/beacon/federated-sdn/src/adaptors/openstack/AdapterConfig.xml")
+osffm=doc.getElementsByTagName("OSFFM")[0]
+endpoint=osffm.getElementsByTagName("endpoint")[0].firstChild.data
+file.write(endpoint+"\n")
+json_str=''
+while True:
+    line = sys.stdin.readline()
+    if not line:
+        break # EOF
+    json_str=json_str+line 
+    file.write(line+"\n")
+json_dec = base64.decodestring(json_str)
+file.write(endpoint+'/fednet/eastBr/user/validate_user\n')
+url=endpoint+'/fednet/eastBr/user/validate_user'
+try:
+    r = requests.put(url,data=json_dec)
+    file.write("ANSWER"+r.text+"\n")
+except Exception:
+     file.write("exception")
+file.write("jsoninp"+json_dec+"\n")
+file.close()
+
+#next line is commented for test reason
+sys.stdout.write(base64.encodestring(r.text))
+#comment next line and uncomment previous one
+#sys.stdout.write(base64.encodestring("{ \"returncode\" : 0, \"errormsg\" : \"\", \"token\" : \"86734b78980\", \"tenant_id\" : \"25\" }"))
