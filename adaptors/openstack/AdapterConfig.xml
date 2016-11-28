@@ -1,0 +1,5 @@
+<configInfo>
+        <OSFFM>
+                <endpoint>http://10.9.0.6:8084/OSFFM</endpoint>
+        </OSFFM>
+</configInfo>
