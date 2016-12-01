@@ -232,8 +232,6 @@ module FederatedSDN
 
             stdin_base64 = Base64.encode64(JSON.pretty_generate(stdin_hash))
 
-            puts cmd
-
             LocalCommand.run(cmd, stdin_base64)
         end
 

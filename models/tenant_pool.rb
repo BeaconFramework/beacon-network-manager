@@ -27,9 +27,9 @@ module FederatedSDN
         end
 
         def bootstrap
-			DB.run "CREATE TABLE #{TABLE_NAME} "\
-						"(id integer primary key autoincrement,"\
-						" name varchar(255) UNIQUE,"\
+            DB.run "CREATE TABLE #{TABLE_NAME} "\
+                        "(id integer primary key autoincrement,"\
+                        " name varchar(255) UNIQUE,"\
                         " password varchar(255),"\
                         " type varchar(255))"
 
