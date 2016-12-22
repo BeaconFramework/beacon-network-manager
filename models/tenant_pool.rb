@@ -42,7 +42,7 @@ module FederatedSDN
 
             # Add root admin user
             username = FederatedSDN::CONF[:root_username]
-            password = FederatedSDN::CONF[:root_password]            
+            password = FederatedSDN::CONF[:root_password]
             id       = 1
 
             tenant_hash = {
@@ -274,6 +274,10 @@ module FederatedSDN
              @table.filter(:name => username).first[:type] == "admin"
         end
 
+        def get_tenant_id_in_site(username, site)
+             tenant_id = @table.filter(:name => username).first[:id]
+             @table_to_site.filter(:tenant_id => tenant_id).filter(:site_id => site_id).first[:user_id_in_site]
+        end
 
         def validate_user(site_type, cmp_endpoint, username, password)
             cmd = ADAPTERS_LOCATION + "/" + site_type.downcase + "/"

@@ -25,11 +25,11 @@ module FederatedSDN
         end
 
         def bootstrap
-			DB.run "CREATE TABLE #{TABLE_NAME} "\
-						"(id integer primary key autoincrement,"\
-						" name varchar(255) UNIQUE,"\
+            DB.run "CREATE TABLE #{TABLE_NAME} "\
+                        "(id integer primary key autoincrement,"\
+                        " name varchar(255) UNIQUE,"\
                         " type varchar(255),"\
-						" cmp_endpoint varchar(255))"
+                        " cmp_endpoint varchar(255))"
         end
 
          # Needs at least name and cmp_endpoint

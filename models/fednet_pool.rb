@@ -120,10 +120,21 @@ module FederatedSDN
                     # Build the network table
                     net_array = Array.new
                     fednet_hash[:netsegments].each{|ns|
-                        net_array << ns[:cmp_blob]
+                        net_array_element             = Hash.new
+                        net_array_element[:name]      = ns[:name]
+                        net_array_element[:vnid]      = ns[:cmp_net_id]
+                        net_array_element[:site]      = FederatedSDN::SitePool.new().get(ns[:site_id]).name
+                        net_array_element[:tenant_id] = FederatedSDN::TenantPool.new().get_tenant_id_in_site(owner, net_array_element[:site])
+                        net_array_element[:cmp_blob]  = ns[:cmp_blob]
+                        
+                        net_array << net_array_element
                     }
 
-                    result = link("opennebula", fednet_hash[:linktype], token, fa_array, net_array)
+                    result = link("opennebula",
+                                  fednet_hash[:linktype],
+                                  token,
+                                  fa_array,
+                                  net_array)
 
                     if result.code == 0
                         new_resource["status"] = "linked"
