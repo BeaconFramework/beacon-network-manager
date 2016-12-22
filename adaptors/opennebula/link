@@ -62,7 +62,7 @@ network_table.each_slice(2) do |nets|
     fa_endpoint_1 = fa_endpoints[network_table.index(nets[1])]
 
     # Start with first element of the pair net[0] link-> net[1]
-    is_remote = nets[0].match("EC2")
+    is_remote = nets[0][:cmp_blob].match("EC2")
     if !is_remote.nil? 
         success = link_ec2(fa_endpoint_0, fa_endpoint_1) 
     else
@@ -72,7 +72,7 @@ network_table.each_slice(2) do |nets|
     break if !success
 
     # Link second element of the pair net[1] link-> net[0]
-    is_remote = nets[1].match("EC2")
+    is_remote = nets[1][:cmp_blob].match("EC2")
     if !is_remote.nil? 
         success = link_ec2(fa_endpoint_1, fa_endpoint_0) 
     else
