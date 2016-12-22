@@ -276,7 +276,7 @@ module FederatedSDN
 
         def get_tenant_id_in_site(username, site)
              tenant_id = @table.filter(:name => username).first[:id]
-             @table_to_site.filter(:tenant_id => tenant_id).filter(:site_id => site_id).first[:user_id_in_site]
+             @table_to_site.filter(:tenant_id => tenant_id).filter(:site_id => site).first[:user_id_in_site]
         end
 
         def validate_user(site_type, cmp_endpoint, username, password)

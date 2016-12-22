@@ -196,7 +196,7 @@ put '/fednet/:id' do
     st, result  = fednet_pool.update(params[:id],
                                      @username,
                                      is_admin,
-                                     Parser.parse_body(request)[0])
+                                     Parser.parse_body(request))
     build_response(st, result)
 end
 

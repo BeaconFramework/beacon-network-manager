@@ -27,11 +27,11 @@ $ bundle install
 The server can be invoked using the bin/federatedsdn-server script. Before the 
 first execution check config/federatedsdn-server.conf to adjust configuration.
 
-$ bin/federatedsdn-server start
+$ cd bin && ./federatedsdn-server start
 
 And stopped:
 
-$ bin/federatedsdn-server stop
+$ cd bin && ./federatedsdn-server stop
 
 ## Client Tools
 
