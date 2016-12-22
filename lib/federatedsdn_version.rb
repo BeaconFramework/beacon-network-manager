@@ -15,13 +15,13 @@
 #------------------------------------------------------------------------------#
 
 module FederatedSDN
-    VERSION = "1.0.0"
+    VERSION = "1.2.0"
 
-    VERSION_CODE = 00001
+    VERSION_CODE = 00002
 
     VERSION_TEXT = <<EOT
 FederatedSDN #{FederatedSDN::VERSION}
-Copyright 2010-2015, OpenNebula Systems
+Copyright 2010-2016, OpenNebula Systems
 
 Licensed under the Apache License, Version 2.0 (the "License"); you may
 not use this file except in compliance with the License. You may obtain

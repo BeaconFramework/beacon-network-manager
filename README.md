@@ -35,10 +35,10 @@ $ cd bin && ./federatedsdn-server stop
 
 ## Client Tools
 
-The FederatedSDN comes with a set of client tools to invoke operations
+The Beacon Network Manager comes with a set of client tools to invoke operations
 over the different resources. 
 
-They need the FederatedSDN server and a valid username and password. The
+They need the Beacon Network Manager server and a valid username and password. The
 defaults are:
 
 :root_username: "root"
