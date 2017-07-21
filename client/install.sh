@@ -114,8 +114,6 @@ change_ownership() {
 
 (
 
-
-
 ## Client files
 
 # bin
