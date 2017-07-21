@@ -42,7 +42,7 @@ They need the Beacon Network Manager server and a valid username and password. T
 defaults are:
 
 :root_username: "root"
-:root_password: "fedsdn"
+:root_password: "beaconnm"
 
 The different client tools are
 
