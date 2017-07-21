@@ -103,6 +103,8 @@ module FederatedSDN
             new_resource = new_fednet
             begin
                 if new_resource["status"] == "link"
+                    @is_opennebula = false
+                    @is_openstack  = false
                     # Call link adapter to create the fednet at the FA level
 
                     # Get all the netsegments
@@ -128,13 +130,36 @@ module FederatedSDN
                         net_array_element[:cmp_blob]  = ns[:cmp_blob]
                         
                         net_array << net_array_element
+
+                        if FederatedSDN::SitePool.new().get(ns[:site_id])[1][:type] == "opennebula"
+                            @is_opennebula = true
+                        end
+
+
+                        if FederatedSDN::SitePool.new().get(ns[:site_id])[1][:type] == "openstack"
+                            @is_openstack = true
+                        end
                     }
 
-                    result = link("opennebula",
-                                  fednet_hash[:linktype],
-                                  token,
-                                  fa_array,
-                                  net_array)
+                    resultcode = 0
+
+                    if @is_opennebula
+                        result = link("opennebula",
+                                      fednet_hash[:linktype],
+                                      token,
+                                      fa_array,
+                                      net_array)
+                        resultcode = result.code
+                    end
+
+                    if @is_openstack
+                        result = link("openstack",
+                                      fednet_hash[:linktype],
+                                      token,
+                                      fa_array,
+                                      net_array)
+                        resultcode = resultcode + result.code
+                    end
 
                     if result.code == 0
                         new_resource["status"] = "linked"
