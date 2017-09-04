@@ -143,7 +143,14 @@ module FederatedSDN
 
                     resultcode = 0
 
-                    if @is_opennebula
+                    if @is_openstack
+                        result = link("openstack",
+                                      fednet_hash[:linktype],
+                                      token,
+                                      fa_array,
+                                      net_array)
+                        resultcode = result.code
+                    elsif @is_opennebula
                         result = link("opennebula",
                                       fednet_hash[:linktype],
                                       token,
@@ -152,16 +159,7 @@ module FederatedSDN
                         resultcode = result.code
                     end
 
-                    if @is_openstack
-                        result = link("openstack",
-                                      fednet_hash[:linktype],
-                                      token,
-                                      fa_array,
-                                      net_array)
-                        resultcode = resultcode + result.code
-                    end
-
-                    if result.code == 0
+                    if resultcode == 0
                         new_resource["status"] = "linked"
                     else
                        return 500, 
