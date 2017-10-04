@@ -126,6 +126,7 @@ module FederatedSDN
 
                     if validate_sucess
                         begin
+                            site_hash["site_id"] = site_hash["site_id"].to_i
                             @table_to_site.insert(site_hash)
                         rescue Exception => e
                             return 500, [e.message + 
@@ -214,6 +215,7 @@ module FederatedSDN
 
                     if validate_sucess
                         begin
+                            site_hash["site_id"] = site_hash["site_id"].to_i
                             @table_to_site.insert(site_hash)
                         rescue Exception => e
                             return 500, [e.message + 
