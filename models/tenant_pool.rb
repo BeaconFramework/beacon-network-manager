@@ -281,6 +281,11 @@ module FederatedSDN
              @table_to_site.filter(:tenant_id => tenant_id).filter(:site_id => site).first[:user_id_in_site]
         end
 
+        def get_tenant_token(username, site)
+             tenant_id = @table.filter(:name => username).first[:id]
+             @table_to_site.filter(:tenant_id => tenant_id).filter(:site_id => site).first[:token]
+        end
+
         def validate_user(site_type, cmp_endpoint, username, password)
             cmd = ADAPTERS_LOCATION + "/" + site_type.downcase + "/"
             cmd = cmd + "validate_user"

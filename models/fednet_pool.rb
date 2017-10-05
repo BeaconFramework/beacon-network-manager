@@ -111,7 +111,7 @@ module FederatedSDN
                     fednet_hash = @table.filter(:id => id).first
                     fednet_hash[:netsegments] = FederatedSDN::NetSegmentPool.new().get_netsegments_in_fednet(id, username)
                     # Build the token Array
-                    token = ""
+                    token       = ""
 
                     # Get all the FAs 
                     fa_array = Array.new
@@ -130,6 +130,8 @@ module FederatedSDN
                         net_array_element[:cmp_blob]  = ns[:cmp_blob]
                         
                         net_array << net_array_element
+
+                        token = FederatedSDN::TenantPool.new().get_tenant_token(username, FederatedSDN::SitePool.new().get(ns[:site_id])[1][:id]) rescue token
 
                         if FederatedSDN::SitePool.new().get(ns[:site_id])[1][:type] == "opennebula"
                             @is_opennebula = true
