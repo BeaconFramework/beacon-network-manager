@@ -228,7 +228,7 @@ module FederatedSDN
                           :fa_endpoints  => fa_endpoints,
                           :network_table => network_table}
 
-            stdin_base64 = Base64.encode64(JSON.pretty_generate(stdin_hash))
+            stdin_base64 = Base64.encode64(JSON.pretty_generate(stdin_hash)).gsub("\n","")
 
             LocalCommand.run(cmd, stdin_base64)
         end
