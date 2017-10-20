@@ -225,7 +225,7 @@ module FederatedSDN
                         return 401,
                                ["Invalid tenant credentials for site "\
                                 "#{site_hash['site_id']}. Message from driver:"\
-                                " #{result['errormesg']}"]
+                                " #{result.stderr}"]
                     end
 
                 }
